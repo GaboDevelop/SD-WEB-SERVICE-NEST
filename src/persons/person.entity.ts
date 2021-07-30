@@ -1,12 +1,17 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity } from 'src/base/base.entity';
+import { Enrollment } from 'src/enrollments/enrollment.entity';
+import {
+  Column,
+  Entity,
+  OneToMany,
+} from 'typeorm';
 
 @Entity()
-export class Person {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class Person extends BaseEntity {
 
+  @ApiProperty()
   @Column()
   first_name: string;
 
@@ -17,4 +22,8 @@ export class Person {
   @ApiProperty()
   @Column()
   ci: string;
+
+  @OneToMany(() => Enrollment, enrollment => enrollment.person)
+  enrollments: Enrollment[];
+
 }

@@ -1,6 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PersonsModule } from './persons/persons.module';
+import { FacultiesController } from './faculties/faculties.controller';
+import { FacultiesService } from './faculties/faculties.service';
+import { FacultiesModule } from './faculties/faculties.module';
+import { SchoolsModule } from './schools/schools.module';
+import { EnrollmentsModule } from './enrollments/enrollments.module';
+import { EntrollmentsController } from './entrollments/entrollments.controller';
+import { SectionsModule } from './sections/sections.module';
 
 @Module({
   imports: [
@@ -19,6 +26,12 @@ import { PersonsModule } from './persons/persons.module';
       },
     }),
     PersonsModule,
+    FacultiesModule,
+    SchoolsModule,
+    EnrollmentsModule,
+    SectionsModule,
   ],
+  controllers: [FacultiesController, EntrollmentsController],
+  providers: [FacultiesService],
 })
 export class AppModule {}
