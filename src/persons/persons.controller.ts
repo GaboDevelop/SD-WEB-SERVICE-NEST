@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Catch, Delete, HttpCode, Param, Post, Put } from '@nestjs/common';
+import { Body, Delete, HttpCode, Param, Post, Put } from '@nestjs/common';
 import { Controller, Get } from '@nestjs/common';
 import { ObjectLiteral } from 'typeorm';
 import { Person } from './person.entity';
@@ -13,10 +13,28 @@ export class PersonsController {
     return await this.personService.findAll();
   }
 
+  @Get('/:id')
+  @HttpCode(200)
+  async getPerson(@Param('id') id: number): Promise<Person | Error> {
+    try {
+      const res: Person | Error = await this.personService.findOne(id);
+      return res;
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // A TypeError
+        console.log('type error!!');
+        return e;
+      } else {
+        // everything else
+        console.log(e.message);
+        return e;
+      }
+    }
+  }
+
   @Post()
   @HttpCode(201)
   createEmployee(@Body() newEmployee: Person) {
-    throw new BadRequestException('you done goofed');
     try {
       const res: ObjectLiteral | Error = this.personService.create(newEmployee);
     } catch (e) {

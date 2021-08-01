@@ -14,6 +14,10 @@ export class PersonsService {
     return this.personRepository.find();
   }
 
+  async findOne(id: number): Promise<Person> {
+    return await this.personRepository.findOne(id);
+  }
+
   async create(newPerson: Person): Promise<ObjectLiteral | Error> {
     try {
       const insert = (await this.personRepository.insert(newPerson))
@@ -30,7 +34,7 @@ export class PersonsService {
 
   async delete(id: number): Promise<ObjectLiteral | Error> {
     try {
-      await this.personRepository.update(id, { last_name: 'disabled' });
+      await this.personRepository.update(id, { status: 'disabled' });
       return { disabled: true, id };
     } catch (error) {
       return error;

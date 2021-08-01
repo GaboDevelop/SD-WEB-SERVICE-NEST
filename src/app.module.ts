@@ -6,8 +6,8 @@ import { FacultiesService } from './faculties/faculties.service';
 import { FacultiesModule } from './faculties/faculties.module';
 import { SchoolsModule } from './schools/schools.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
-import { EntrollmentsController } from './entrollments/entrollments.controller';
 import { SectionsModule } from './sections/sections.module';
+import { SectionsEnrollmentsModule } from './sectionsEnrollments/sections-enrollments.module';
 
 @Module({
   imports: [
@@ -30,8 +30,7 @@ import { SectionsModule } from './sections/sections.module';
     SchoolsModule,
     EnrollmentsModule,
     SectionsModule,
+    SectionsEnrollmentsModule,
   ],
-  controllers: [FacultiesController, EntrollmentsController],
-  providers: [FacultiesService],
 })
 export class AppModule {}
