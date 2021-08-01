@@ -17,15 +17,72 @@ export class SectionsController {
 
   @Get()
   @HttpCode(200)
-  async getAll(): Promise<Section[]> {
-    return await this.sectionsService.findAll();
+  async getAll(): Promise<ObjectLiteral> {
+    try {
+      return await this.sectionsService.findAll();
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // A TypeError
+        console.log('type error!!');
+        return e;
+      } else {
+        // everything else
+        console.log(e.message);
+        return e;
+      }
+    }
   }
 
   @Get('/:id')
   @HttpCode(200)
-  async getSection(@Param('id') id: number): Promise<Section | Error> {
+  async getSection(@Param('id') id: number): Promise<ObjectLiteral | Error> {
     try {
-      const res: Section | Error = await this.sectionsService.findOne(id);
+      const res: ObjectLiteral | Error = await this.sectionsService.findOne(id);
+      return res;
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // A TypeError
+        console.log('type error!!');
+        return e;
+      } else {
+        // everything else
+        console.log(e.message);
+        return e;
+      }
+    }
+  }
+
+  @Get('/students/:id')
+  @HttpCode(200)
+  async getSectionStudents(
+    @Param('id') id: number,
+  ): Promise<ObjectLiteral | Error> {
+    try {
+      const res: ObjectLiteral | Error =
+        await this.sectionsService.findStudents(id);
+      return res;
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // A TypeError
+        console.log('type error!!');
+        return e;
+      } else {
+        // everything else
+        console.log(e.message);
+        return e;
+      }
+    }
+  }
+
+  @Get('/teachers/:id')
+  @HttpCode(200)
+  async getSectionTeachers(
+    @Param('id') id: number,
+  ): Promise<ObjectLiteral | Error> {
+    try {
+      const res: ObjectLiteral | Error = await this.sectionsService.findTeacher(
+        id,
+      );
       return res;
     } catch (e) {
       if (e instanceof TypeError) {

@@ -24,24 +24,23 @@ export class SectionsEnrollmentsService {
         section: data.section,
         enrollment: data.enrollment,
       });
-      const section: Section = await this.sectionService.findOne(
+      const section: { succes: boolean; section: Section } | ObjectLiteral =
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        data.section,
-      );
+        await this.sectionService.findOne(data.section);
       const enrollment: Enrollment = await this.enrollmentService.findOne(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         data.enrollment,
       );
       if (exist) {
-        const error = 'the record already exists'
+        const error = 'the record already exists';
         return { success: false, error };
-      } else if (!section || !enrollment) {
+      } else if (!section.success || !enrollment) {
         const error = 'the record Section or Enrollment not exists';
         return { success: false, error };
       } else {
-        newSectionEnrollment.section = section;
+        newSectionEnrollment.section = section.section;
         newSectionEnrollment.enrollment = enrollment;
         const insert = (
           await this.sectionEnrollmentRepository.insert(newSectionEnrollment)
