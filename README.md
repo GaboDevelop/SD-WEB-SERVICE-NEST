@@ -22,6 +22,10 @@ $ npm run start
 $ npm run start:dev
 ```
 
+## Documentacion del api
+
+La documentacion del api esta realizada con swagger, por lo que solo tendras que abrir en tu navegador el proyecto localhost en el puerto de ejecucion, por defecto `localhost:3000`
+
 ## License
 
 Nest is [MIT licensed](LICENSE).
