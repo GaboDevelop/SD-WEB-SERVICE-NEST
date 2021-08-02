@@ -1,5 +1,14 @@
-import { Body, Delete, HttpCode, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Delete,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { Controller, Get } from '@nestjs/common';
+import { ApiBody, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ObjectLiteral } from 'typeorm';
 import { Person } from './person.entity';
 import { PersonsService } from './persons.service';
@@ -9,15 +18,51 @@ export class PersonsController {
   constructor(private readonly personService: PersonsService) {}
 
   @Get()
-  async getAll(): Promise<Person[]> {
-    return await this.personService.findAll();
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+  })
+  async getAll(@Query() params): Promise<ObjectLiteral> {
+    try {
+      return await this.personService.findAll(params);
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // A TypeError
+        console.log('type error!!');
+        return e;
+      } else {
+        // everything else
+        console.log(e.message);
+        return e;
+      }
+    }
   }
 
   @Get('/:id')
   @HttpCode(200)
-  async getPerson(@Param('id') id: number): Promise<Person | Error> {
+  async getPerson(@Param('id') id: number): Promise<ObjectLiteral | Error> {
     try {
-      const res: Person | Error = await this.personService.findOne(id);
+      const res: ObjectLiteral | Error = await this.personService.findOne(id);
+      return res;
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // A TypeError
+        console.log('type error!!');
+        return { success: false, error: e.message };
+      } else {
+        // everything else
+        console.log(e.message);
+        return { success: false, error: e.message };
+      }
+    }
+  }
+
+  @Post()
+  @HttpCode(201)
+  createEmployee(@Body() newEmployee: Person) {
+    try {
+      const res: ObjectLiteral | Error = this.personService.create(newEmployee);
       return res;
     } catch (e) {
       if (e instanceof TypeError) {
@@ -32,31 +77,53 @@ export class PersonsController {
     }
   }
 
-  @Post()
-  @HttpCode(201)
-  createEmployee(@Body() newEmployee: Person) {
+  @Put('/:id')
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'identificador de la persona a encontrar',
+  })
+  @ApiBody({
+    type: Person,
+  })
+  @HttpCode(200)
+  async updateEmployee(@Param('id') id, @Body() personUpdate: Person) {
     try {
-      const res: ObjectLiteral | Error = this.personService.create(newEmployee);
+      return await this.personService.update(id, personUpdate);
     } catch (e) {
       if (e instanceof TypeError) {
         // A TypeError
         console.log('type error!!');
+        return e;
       } else {
         // everything else
         console.log(e.message);
+        return e;
       }
     }
   }
 
-  @Put('/:id')
-  @HttpCode(200)
-  updateEmployee(@Param('id') id, @Body() personUpdate: any) {
-    return this.personService.update(id, personUpdate);
-  }
-
   @Delete('/:id')
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'identificador de la persona a encontrar',
+    type: Number,
+  })
   @HttpCode(200)
-  deletePerson(@Param('id') id) {
-    return this.personService.delete(id);
+  async deletePerson(@Param('id') id): Promise<ObjectLiteral> {
+    try {
+      return await this.personService.delete(parseInt(id));
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // A TypeError
+        console.log('type error!!');
+        return e;
+      } else {
+        // everything else
+        console.log(e.message);
+        return e;
+      }
+    }
   }
 }

@@ -7,7 +7,9 @@ import {
   Put,
   Controller,
   Get,
+  Query,
 } from '@nestjs/common';
+import { ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ObjectLiteral } from 'typeorm';
 import { Enrollment } from './enrollment.entity';
 import { EnrollmentsService } from './enrollments.service';
@@ -17,16 +19,33 @@ export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
 
   @Get()
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+  })
   @HttpCode(200)
-  async getAll(): Promise<Enrollment[]> {
-    return await this.enrollmentsService.findAll();
+  async getAll(@Query() params): Promise<ObjectLiteral | Error> {
+    try {
+      return await this.enrollmentsService.findAll(params);
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // A TypeError
+        console.log('type error!!');
+        return e;
+      } else {
+        // everything else
+        console.log(e.message);
+        return e;
+      }
+    }
   }
 
   @Get('/:id')
   @HttpCode(200)
-  async getEnrollment(@Param('id') id: number): Promise<Enrollment | Error> {
+  async getEnrollment(@Param('id') id: number): Promise<ObjectLiteral | Error> {
     try {
-      const res: Enrollment | Error = await this.enrollmentsService.findOne(id);
+      const res: ObjectLiteral | Error = await this.enrollmentsService.findOne(id);
       return res;
     } catch (e) {
       if (e instanceof TypeError) {
@@ -62,28 +81,51 @@ export class EnrollmentsController {
 
   @Put('/:id')
   @HttpCode(200)
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'identificador de la inscripcion a encontrar',
+  })
   async updateEnrollment(@Param('id') id, @Body() schoolUpdate: Enrollment) {
     try {
       const res: ObjectLiteral | Error = await this.enrollmentsService.update(
         id,
         schoolUpdate,
       );
-      console.log('res', res);
       return res;
     } catch (e) {
       if (e instanceof TypeError) {
         // A TypeError
         console.log('type error!!');
+        return e;
       } else {
         // everything else
         console.log(e.message);
+        return e;
       }
     }
   }
 
   @Delete('/:id')
   @HttpCode(200)
-  deleteEnrollment(@Param('id') id) {
-    return this.enrollmentsService.delete(id);
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'identificador de la inscripcion a encontrar',
+  })
+  async deleteEnrollment(@Param('id') id) {
+    try {
+      return await this.enrollmentsService.delete(parseInt(id));
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // A TypeError
+        console.log('type error!!');
+        return e;
+      } else {
+        // everything else
+        console.log(e.message);
+        return e;
+      }
+    }
   }
 }

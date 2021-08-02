@@ -24,6 +24,7 @@ export class Section extends EntityClass {
     @Column()
     semester: number;
 
+    @ApiProperty()
     @Column({
         type: 'enum',
         enum: ['mandatory', 'elective'],

@@ -11,10 +11,17 @@ export class SectionsService {
     private sectionRepository: Repository<Section>,
   ) {}
 
-  async findAll(): Promise<ObjectLiteral> {
+  async findAll(params: undefined | ObjectLiteral): Promise<ObjectLiteral> {
     try {
-      const sections: Section[] = await this.sectionRepository.find();
-      return { success: true, sections: sections };
+      if (!!params && params.status) {
+        const sections: Section[] = await this.sectionRepository.find({
+          status: params.status,
+        });
+        return { success: true, sections: sections };
+      } else {
+        const sections: Section[] = await this.sectionRepository.find();
+        return { success: true, sections: sections };
+      }
     } catch (error) {
       return { succes: false, error: error.message };
     }

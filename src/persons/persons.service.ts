@@ -10,34 +10,69 @@ export class PersonsService {
     private personRepository: Repository<Person>,
   ) {}
 
-  findAll(): Promise<Person[]> {
-    return this.personRepository.find();
+  async findAll(params: undefined | ObjectLiteral): Promise<ObjectLiteral> {
+    try {
+      if (!!params && params.status) {
+        const persons: Person[] = await this.personRepository.find({
+          status: params.status,
+        });
+        return { success: true, persons: persons };
+      } else {
+        const persons: Person[] = await this.personRepository.find();
+        return { success: true, persons: persons };
+      }
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
   }
 
-  async findOne(id: number): Promise<Person> {
-    return await this.personRepository.findOne(id);
+  async findOne(id: number): Promise<ObjectLiteral | Error> {
+    try {
+      const person: Person = await this.personRepository.findOne(id);;
+      if (person) {
+        return { success: true, person: person };
+      } else {
+        return { success: false, person: {} };
+      }
+    } catch (error) {
+      return { succes: false, error: error.message };
+    }
   }
 
   async create(newPerson: Person): Promise<ObjectLiteral | Error> {
     try {
       const insert = (await this.personRepository.insert(newPerson))
         .generatedMaps[0];
-      return insert;
+      return { success: true, person: insert };
     } catch (error) {
-      return error;
+      return { success: false, error: error.message };
     }
   }
 
-  update(id: number, personUpdate: Person) {
-    this.personRepository.update(id, personUpdate);
+  async update(
+    id: number,
+    personUpdate: Person,
+  ): Promise<ObjectLiteral | Error> {
+    try {
+      const insert = (await this.personRepository.update(id, personUpdate))
+        .generatedMaps[0];
+      return { success: true, data: insert };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   async delete(id: number): Promise<ObjectLiteral | Error> {
     try {
-      await this.personRepository.update(id, { status: 'disabled' });
-      return { disabled: true, id };
+      const time = new Date().toISOString();
+      await this.personRepository.update(id, {
+        status: 'disabled',
+        delete_at: time,
+        id,
+      });
+      return { success: true, disabled: true, id };
     } catch (error) {
-      return error;
+      return { success: false, error: error.message };
     }
   }
 }

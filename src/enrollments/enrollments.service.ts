@@ -13,21 +13,45 @@ export class EnrollmentsService {
     private readonly sectionService: SectionsService,
   ) {}
 
-  findAll(): Promise<Enrollment[]> {
-    return this.enrollmentRepository.find();
+  async findAll(params: undefined | ObjectLiteral): Promise<ObjectLiteral> {
+    try {
+      if (!!params && params.status) {
+        const enrollments: Enrollment[] = await this.enrollmentRepository.find({
+          status: params.status,
+        });
+        return { success: true, enrollments: enrollments };
+      } else {
+        const enrollments: Enrollment[] =
+          await this.enrollmentRepository.find();
+        return { success: true, enrollments: enrollments };
+      }
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
   }
 
-  async findOne(id: number): Promise<Enrollment> {
-    return await this.enrollmentRepository.findOne(id);
+  async findOne(id: number): Promise<ObjectLiteral | Error> {
+    try {
+      const enrollment: Enrollment = await this.enrollmentRepository.findOne(
+        id,
+      );
+      if (enrollment) {
+        return { success: true, enrollment: enrollment };
+      } else {
+        return { success: false, enrollment: {} };
+      }
+    } catch (error) {
+      return { succes: false, error: error.message };
+    }
   }
 
   async create(newEnrollment: Enrollment): Promise<ObjectLiteral | Error> {
     try {
       const insert = (await this.enrollmentRepository.insert(newEnrollment))
         .generatedMaps[0];
-      return insert;
+      return { success: true, faculty: insert };
     } catch (error) {
-      return error;
+      return { success: false, error: error.message };
     }
   }
 
@@ -39,7 +63,7 @@ export class EnrollmentsService {
       await this.enrollmentRepository.update(id, schoolUpdate);
       return { success: true, id };
     } catch (error) {
-      return error;
+      return { success: false, error: error.message };
     }
   }
 
@@ -50,9 +74,9 @@ export class EnrollmentsService {
         status: 'disabled',
         delete_at: time,
       });
-      return { disabled: true, delete_at: time, id };
+      return { success: true, disabled: true, delete_at: time, id };
     } catch (error) {
-      return error;
+      return { success: false, error: error.message };
     }
   }
 }

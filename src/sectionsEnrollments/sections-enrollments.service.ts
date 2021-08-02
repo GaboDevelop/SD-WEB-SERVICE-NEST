@@ -28,7 +28,9 @@ export class SectionsEnrollmentsService {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await this.sectionService.findOne(data.section);
-      const enrollment: Enrollment = await this.enrollmentService.findOne(
+      const enrollment:
+        | { succes: boolean; enrollment: Enrollment }
+        | ObjectLiteral = await this.enrollmentService.findOne(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         data.enrollment,
@@ -36,12 +38,12 @@ export class SectionsEnrollmentsService {
       if (exist) {
         const error = 'the record already exists';
         return { success: false, error };
-      } else if (!section.success || !enrollment) {
+      } else if (!section.success || !enrollment.success) {
         const error = 'the record Section or Enrollment not exists';
         return { success: false, error };
       } else {
         newSectionEnrollment.section = section.section;
-        newSectionEnrollment.enrollment = enrollment;
+        newSectionEnrollment.enrollment = enrollment.enrollment;
         const insert = (
           await this.sectionEnrollmentRepository.insert(newSectionEnrollment)
         ).generatedMaps[0];
@@ -49,6 +51,36 @@ export class SectionsEnrollmentsService {
       }
     } catch (error) {
       return error;
+    }
+  }
+
+  async delete(data: SectionEnrollment): Promise<ObjectLiteral | Error> {
+    try {
+      const time = new Date().toISOString();
+      const sectionEnrollment: SectionEnrollment[] = await this.sectionEnrollmentRepository.find({
+          section: data.section,
+          enrollment: data.enrollment,
+        });
+      console.log(sectionEnrollment);
+      if (sectionEnrollment) {
+        await this.sectionEnrollmentRepository.update(sectionEnrollment[0].id, {
+          status: 'disabled',
+          delete_at: time,
+        });
+        return {
+          success: true,
+          disabled: true,
+          delete_at: time,
+          id: sectionEnrollment[0].id,
+        };
+      } else {
+        return {
+          success: false,
+          error: 'No se encontro un registro con los datos sumistrados',
+        };
+      }
+    } catch (error) {
+      return { success: false, error: error.message };
     }
   }
 }
